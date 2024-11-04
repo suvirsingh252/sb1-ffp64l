@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    image: energyaudit/saas:latest
+    build: .
+    container_name: energy-audit-app
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=energy_audit
+      - DB_PASSWORD=your_secure_password
+      - DB_NAME=energy_audit_db
+    volumes:
+      - app_data:/app/data
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:latest
+    container_name: energy-audit-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=energy_audit_db
+      - MYSQL_USER=energy_audit
+      - MYSQL_PASSWORD=your_secure_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+
+volumes:
+  app_data:
+  app_uploads:
+  app_logs:
+  db_data:
